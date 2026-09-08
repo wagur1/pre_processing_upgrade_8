@@ -82,7 +82,7 @@ def main():
     else:
         src = PROBE_BASH.replace("__COMMIT__", commit)
 
-    slug = f"u7-{a.kind}{a.slug_suffix or ('-shard%d' % a.shard_idx if a.kind == 'eval' else '')}"
+    slug = f"u8-{a.kind}{a.slug_suffix or ('-shard%d' % a.shard_idx if a.kind == 'eval' else '')}"
     push_dir = REPO / "ops" / "_push" / slug
     push_dir.mkdir(parents=True, exist_ok=True)
 
