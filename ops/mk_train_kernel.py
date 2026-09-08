@@ -18,13 +18,13 @@ set -euo pipefail
 export PYTHONUNBUFFERED=1
 
 cd /kaggle/working
-REPO=/kaggle/working/pre_processing_upgrade_7
+REPO=/kaggle/working/pre_processing_upgrade_8
 
 if [ -d "$REPO/.git" ]; then
   git -C "$REPO" fetch --all -q
   git -C "$REPO" checkout -q __COMMIT__
 else
-  git clone -q https://github.com/wagur1/pre_processing_upgrade_7.git "$REPO"
+  git clone -q https://github.com/wagur1/pre_processing_upgrade_8.git "$REPO"
   git -C "$REPO" checkout -q __COMMIT__
 fi
 cd "$REPO"

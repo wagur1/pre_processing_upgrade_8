@@ -21,13 +21,13 @@ set -euo pipefail
 export PYTHONUNBUFFERED=1
 
 cd /kaggle/working
-REPO=/kaggle/working/pre_processing_upgrade_7
+REPO=/kaggle/working/pre_processing_upgrade_8
 
 if [ -d "$REPO/.git" ]; then
   git -C "$REPO" fetch --all -q
   git -C "$REPO" checkout -q __COMMIT__
 else
-  git clone -q https://github.com/wagur1/pre_processing_upgrade_7.git "$REPO"
+  git clone -q https://github.com/wagur1/pre_processing_upgrade_8.git "$REPO"
   git -C "$REPO" checkout -q __COMMIT__
 fi
 cd "$REPO"
@@ -51,7 +51,7 @@ if [ ! -f "$INDEX" ]; then
 fi
 
 # ---- checkpoint from the TRAIN kernel's attached output ----
-CKPT_SRC=$(find /kaggle/input -name 'preprocessor.pth' -not -path '*/pre_processing_upgrade_7/*' 2>/dev/null | head -1 || true)
+CKPT_SRC=$(find /kaggle/input -name 'preprocessor.pth' -not -path '*/pre_processing_upgrade_8/*' 2>/dev/null | head -1 || true)
 if [ -z "$CKPT_SRC" ]; then
   echo "ERROR: no preprocessor.pth in /kaggle/input (attach the train kernel's output as a data source)" >&2
   exit 1
