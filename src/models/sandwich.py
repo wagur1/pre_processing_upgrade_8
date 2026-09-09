@@ -70,7 +70,11 @@ class _PostUNet(nn.Module):
         self.dec1 = nn.Sequential(nn.ReLU(inplace=True),
                                   nn.Conv2d(2 * base, base, 3, padding=1))
         self.out_conv = nn.Conv2d(base, 3, 3, padding=1)
-        nn.init.zeros_(self.out_conv.weight)
+        # NOT zero-init: zero output conv x zero post_strength gate is a dead
+        # saddle (both gradients exactly 0 — the 16-epoch v8 run left POST
+        # permanently closed because of this). Small noise + zero gate keeps
+        # identity-at-init with alive gradients.
+        nn.init.normal_(self.out_conv.weight, std=1e-3)
         nn.init.zeros_(self.out_conv.bias)
 
     def forward(self, x: torch.Tensor, cond: torch.Tensor) -> torch.Tensor:

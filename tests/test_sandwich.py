@@ -104,3 +104,16 @@ if __name__ == "__main__":
             fn()
             print(f"PASS {name}")
     print("all sandwich tests passed")
+
+
+def test_post_gate_gradients_alive_at_init():
+    """Regression: zero-init out_conv x zero-init post_strength = dead saddle
+    (the 16-epoch v8 run left POST permanently closed). Noise-init conv keeps
+    identity via the gate but the gate gradient must be nonzero."""
+    torch.manual_seed(0)
+    m = SandwichPreprocessor()
+    x_hat = torch.rand(1, 3, 4, 32, 32)
+    out = m.post_restore(x_hat, torch.full((1, 1), 0.6))
+    out.pow(2).mean().backward()
+    assert m.post_strength.grad is not None
+    assert m.post_strength.grad.abs() > 0, "POST gate is a dead saddle again"
