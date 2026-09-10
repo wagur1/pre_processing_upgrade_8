@@ -28,6 +28,17 @@ out conv × zero gate ⇒ gradient kép ≡ 0). Nhân bản độc lập của c
 | **sandwich (claim chính)** | **−4.25% [−6.73,−1.58]** | −1.48% [−3.34,+0.50] | PASS |
 | lineage best (Zhao kappa=10, v6) | −3.42% [−5.88,−0.88] | −2.63% [−4.49,−0.79] | PASS |
 
+## E2: Frankenstein-STE (PRE-v1 + POST-STE-h265, FULL n=1159, 10k bootstrap) — SỐ TỐT NHẤT DỰ ÁN
+
+| Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
+|---|---|---|---|---|---|
+| prep (PRE-v1) | −2.46% | [−4.47, −0.40] | −0.78% | [−2.22, +0.73] | 0.991 / 0.844 |
+| **sandwich** | **−5.89%** | **[−7.93, −3.76]** | **−2.79%** | **[−4.24, −1.25]** | **1.000 / 1.000** |
+
+So với frankenstein (không STE): h264 −4.82 → **−5.89 (+1.07pp từ STE-POST)**, h265
+−2.38 → −2.79 (+0.41pp). Cộng tính giữ vững lần thứ 3. CI h264 upper (−3.76) đã
+sâu hơn mean của lineage best (−3.42). Gap rule PASS cả hai.
+
 ## STE stage-2 (x265-in-loop 400 bước; shards 0+1 = 770 seqs, 5k bootstrap)
 
 | Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
