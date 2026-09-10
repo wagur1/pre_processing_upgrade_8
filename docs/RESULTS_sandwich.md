@@ -28,7 +28,17 @@ out conv × zero gate ⇒ gradient kép ≡ 0). Nhân bản độc lập của c
 | **sandwich (claim chính)** | **−4.25% [−6.73,−1.58]** | −1.48% [−3.34,+0.50] | PASS |
 | lineage best (Zhao kappa=10, v6) | −3.42% [−5.88,−0.88] | −2.63% [−4.49,−0.79] | PASS |
 
-## Kết quả (v2, shards 0+1 = 770/1159 seqs, 5k bootstrap)
+## Kết quả FULL (v2, n=1159, 10k bootstrap) — số chốt
+
+| Arm | BD h264 | CI95 | BD h265 | CI95 |
+|---|---|---|---|---|
+| prep+codec | −0.85% | [−2.66, +0.99] | −1.92% | [−3.21, −0.54] |
+| **sandwich+codec** | **−4.45%** | **[−6.57, −2.31]** | **−2.05%** | **[−3.55, −0.50]** |
+
+P(BD<0): sandwich h264 **1.000** (10k/10k resamples âm), h265 0.995. Gap rule
+PASS cả hai codec. POST pure value h264: +3.60pp (−4.45 vs −0.85).
+
+## Kết quả preliminary (v2, shards 0+1 = 770/1159 seqs, 5k bootstrap)
 
 | Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
 |---|---|---|---|---|---|
