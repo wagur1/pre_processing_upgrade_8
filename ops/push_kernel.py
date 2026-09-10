@@ -53,6 +53,8 @@ def main():
     p.add_argument("--init-from", default=None,
                    help="(train) kernel slug whose output holds the warm-start checkpoint")
     p.add_argument("--extra-bash", default="", help="(train) extra bash inserted before train")
+    p.add_argument("--dataset-extra", default=None,
+                   help="(train) extra dataset slug to attach (e.g. warm-start ckpt dataset)")
     p.add_argument("--slug-suffix", default="", help="appended to kernel slug")
     p.add_argument("--shard-idx", type=int, default=0)
     p.add_argument("--num-shards", type=int, default=3)
@@ -119,6 +121,8 @@ def main():
     if a.kind == "train" and a.init_from:
         # Warm start: attach the source kernel's output (its checkpoints).
         meta["kernel_sources"] = [a.init_from]
+    if a.dataset_extra:
+        meta["dataset_sources"] = list(meta.get("dataset_sources", [])) + [a.dataset_extra]
     account = __import__("os").environ.get("KAGGLE_ACCOUNT", "")
     meta["id"] = meta["id"].replace("__ACCOUNT__", account or "wagur124705")
 
