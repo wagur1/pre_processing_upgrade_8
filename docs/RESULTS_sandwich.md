@@ -28,6 +28,27 @@ out conv × zero gate ⇒ gradient kép ≡ 0). Nhân bản độc lập của c
 | **sandwich (claim chính)** | **−4.25% [−6.73,−1.58]** | −1.48% [−3.34,+0.50] | PASS |
 | lineage best (Zhao kappa=10, v6) | −3.42% [−5.88,−0.88] | −2.63% [−4.49,−0.79] | PASS |
 
+## Frankenstein (PRE=v7-v1 best + POST=v8-v2, FULL n=1159, 10k bootstrap)
+
+| Arm | BD h264 | CI95 | BD h265 | CI95 |
+|---|---|---|---|---|
+| prep (PRE-v1) | −2.46% | [−4.47, −0.40] | −0.78% | [−2.22, +0.73] |
+| **sandwich (PRE-v1 + POST)** | **−4.82%** | **[−6.96, −2.60]** | **−2.38%** | **[−3.85, −0.82]** |
+
+P(BD<0): 1.000 (h264) / 0.999 (h265); gap rule PASS cả hai.
+
+**Verdict cộng tính:** POST ghép vào PRE chưa từng co-train vẫn cho **+2.36pp
+(h264) / +1.60pp (h265) thuần** — POST là **add-on portable**, không cần
+co-training với PRE cụ thể. Frankenstein thắng joint sandwich trên cả hai codec
+(h264 −4.82 vs −4.45; h265 −2.38 vs −2.05, trong dung sai ±1pp) với sự khác biệt
+chủ yếu đến từ PRE mạnh hơn (v1 −2.46 vs v8-PRE −0.85). Sanity: frank prep arm
+đối chiếu chính xác số pre-only v1 (−2.46/−0.78) — instrumentation nhất quán.
+
+**Hàm ý:** (1) hướng triển khai "POST add-on trên hạ tầng codec sẵn có" (không
+đụng encoder) có bằng chứng; (2) co-adaptation fine-tune frankenstein (Tier 2)
+là bước tự nhiên — nếu POST tận dụng được PRE mạnh, khoảng cách tới −6…−7% còn;
+(3) bảng paper có dòng "portable POST" hoàn chỉnh so với joint training.
+
 ## Kết quả FULL (v2, n=1159, 10k bootstrap) — số chốt
 
 | Arm | BD h264 | CI95 | BD h265 | CI95 |
