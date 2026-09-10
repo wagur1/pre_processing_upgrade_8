@@ -76,6 +76,8 @@ else:
 PY
 fi
 
+__EXTRA_BASH__
+
 # ---- train (resume=true survives session death) ----
 python train.py --config __CONFIG__ \
     data.index="$INDEX" \

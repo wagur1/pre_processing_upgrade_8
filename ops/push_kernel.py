@@ -46,8 +46,13 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("kind", choices=["train", "eval", "probe"])
     p.add_argument("--commit", default=None, help="repo commit to pin (default: HEAD)")
-    p.add_argument("--config", default="configs/upvcm_ar.yaml",
+    p.add_argument("--config", default="configs/sandwich_ar.yaml",
                    help="(train) config to run")
+    p.add_argument("--overrides", default=None,
+                   help="(train) dotted config overrides (default: train.epochs=16)")
+    p.add_argument("--init-from", default=None,
+                   help="(train) kernel slug whose output holds the warm-start checkpoint")
+    p.add_argument("--extra-bash", default="", help="(train) extra bash inserted before train")
     p.add_argument("--slug-suffix", default="", help="appended to kernel slug")
     p.add_argument("--shard-idx", type=int, default=0)
     p.add_argument("--num-shards", type=int, default=3)
@@ -71,7 +76,8 @@ def main():
         import re
         m = re.search(r"^out_dir:\s*(\S+)", open(str(REPO / a.config)).read(), re.M)
         src = src.replace("__OUT_DIR__", m.group(1) if m else "outputs/train")
-        src = src.replace("__OVERRIDES__", "train.epochs=16")
+        src = src.replace("__OVERRIDES__", a.overrides or "train.epochs=16")
+        src = src.replace("__EXTRA_BASH__", a.extra_bash or "true")
     elif a.kind == "eval":
         mod = importlib.import_module("ops.mk_eval_kernel")
         src = mod.EVAL_BASH.replace("__COMMIT__", commit)
@@ -106,6 +112,9 @@ def main():
     if a.kind == "eval" and a.train_kernel:
         # Attach the train kernel's output: newest preprocessor.pth wins.
         meta["kernel_sources"] = [a.train_kernel]
+    if a.kind == "train" and a.init_from:
+        # Warm start: attach the source kernel's output (its checkpoints).
+        meta["kernel_sources"] = [a.init_from]
     account = __import__("os").environ.get("KAGGLE_ACCOUNT", "")
     meta["id"] = meta["id"].replace("__ACCOUNT__", account or "wagur124705")
 
