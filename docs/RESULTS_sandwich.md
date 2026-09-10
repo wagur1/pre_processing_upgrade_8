@@ -52,9 +52,17 @@ kia: h264 record = E2 (POST-h265, vành đai proxy), h265 record = STE (POST-h26
 Mô hình đúng cho paper: **per-codec POST heads** (hoặc FiLM theo codec), không
 một POST duy nhất cho cả hai.
 
-## E3: co-adaptation (2ep STE-x264 từ frankenstein; ckpt epoch 2, step 2158)
-Gates: PRE dec=−0.625 edit=0 stab=−0.080 (giữ nguyên), POST +0.0471 (từ +0.0523).
-Eval shards 0+1 RUNNING trên linhowi05.
+## E3: co-adaptation (2ep STE-x264 từ frankenstein; shards 0+1 = 770 seqs, 5k bootstrap)
+
+| Arm | BD h264 | CI95 | BD h265 | CI95 |
+|---|---|---|---|---|
+| sandwich | −3.07% | [−5.45, −0.48] | −2.92% | [−4.75, −1.00] |
+
+**Verdict: co-adaptation (lr 2e-5, 2ep) KHÔNG vượt E2** (−3.07 vs −5.89 h264;
+−2.92 vs −2.79 h265 — ngang). POST strength đóng bớt (0.052→0.047) trong khi
+PRE giữ nguyên: fine-tune kéo cả hai về điểm cân bằng giữa, mất sự chuyên biệt
+của từng nửa. Shard 2 đang chạy cho merge full. Bài học: frankenstein giữ
+nguyên trạng (không co-adapt nhẹ) là cấu hình tốt nhất.
 
 ## TTO screen (100 clip, steps=30, frankenstein-STE)
 tto+h264 −3.79% (acc 0.508→0.568) / tto+h265 **+6.09%** (acc 0.520→0.546).
