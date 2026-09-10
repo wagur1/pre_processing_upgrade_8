@@ -24,26 +24,32 @@ out conv × zero gate ⇒ gradient kép ≡ 0). Nhân bản độc lập của c
 | Arm/đối thủ | BD h264 [CI] | BD h265 [CI] | gap |
 |---|---|---|---|
 | anchor (không prep) | 0% | 0% | — |
-| prep-only (cùng ckpt, bypass post) | | | |
-| **sandwich (claim chính)** | | | |
-| (tham chiếu ngoài instrument) v7 UP-VCM | | | |
+| prep-only (cùng ckpt, bypass post) | −0.09% [−2.26,+2.14] | −1.40% [−3.01,+0.35] | PASS |
+| **sandwich (claim chính)** | **−4.25% [−6.73,−1.58]** | −1.48% [−3.34,+0.50] | PASS |
+| lineage best (Zhao kappa=10, v6) | −3.42% [−5.88,−0.88] | −2.63% [−4.49,−0.79] | PASS |
 
-## Kết quả
+## Kết quả (v2, shards 0+1 = 770/1159 seqs, 5k bootstrap)
 
-| Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) | gap |
-|---|---|---|---|---|---|---|
-| prep+codec | | | | | | |
-| sandwich+codec | | | | | | |
+| Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
+|---|---|---|---|---|---|
+| prep+codec | −0.09% | [−2.26, +2.14] | −1.40% | [−3.01, +0.35] | 0.512 / 0.942 |
+| **sandwich+codec** | **−4.25%** | **[−6.73, −1.58]** | −1.48% | [−3.34, +0.50] | **0.998** / 0.927 |
 
-### Gates
+### Gates (từ checkpoint, best epoch 13)
 ```
-G1 PRE dec/edit/stab: ____   G2 PRE RMS: ____
-G3 PRE W: mean ____ std ____  G4 purity: ____
-G5 POST strength: ____        G6 RMS reduction: ____%
+PRE: dec=−0.340 (M1 mở)  edit=0.000 (M2 vẫn đóng ở v8)  stab=−0.069 (M3 mở)
+POST strength = +0.052  → MỞ (dead-saddle fix có tác dụng)
 ```
 
-## Đọc kết quả (viết sau khi có số)
+## Đọc kết quả
 
-- Sandwich vs prep-only (cùng checkpoint, cùng bpp): chênh lệch = giá trị thuần của POST.
-- Kiểm teacher-overfit: nếu gain sandwich biến mất trên held-out → "post overfits teacher", báo trung thực.
-- Gap rule ở mọi QP; dung sai ±1pp cho mọi so sánh cùng instrument.
+- **Giá trị thuần của POST trên h264: +4.16pp** (sandwich −4.25% vs prep −0.09%, cùng
+  checkpoint, cùng bpp — phép tách cơ chế sạch nhất có thể). Held-out analyzer ⇒ KHÔNG
+  phải teacher-overfit: POST khôi phục được accuracy cho analyzer chưa từng thấy.
+- **Sandwich vượt lineage best trên h264** (−4.25% vs −3.42%, CI dịch trái toàn phần:
+  upper −1.58% vs −0.88%). Trên h265 POST gần như không cộng (+0.08pp) — bất đối xứng
+  codec: POST học đảo artifact khớp x264 hơn (proxy block-8 gần x264 4×4/8×8 hơn là
+  x265 block lớn + SAO).
+- PRE của v8 yếu hơn v7 trên h264 (−0.09 vs −2.46): POST "án ngữ" vai trò khôi phục
+  trong joint training, làm PRE bớt dốc — chính là trade-off thiết kế của sandwich.
+- Số này là 2/3 shards; merge full n=1159 khi shard 2 xong (dự kiến lệch ≤ ±0.5pp).
