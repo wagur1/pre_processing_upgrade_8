@@ -58,8 +58,9 @@ một POST duy nhất cho cả hai.
 |---|---|---|---|---|
 | sandwich | −3.07% | [−5.45, −0.48] | −2.92% | [−4.75, −1.00] |
 
-**Verdict: co-adaptation (lr 2e-5, 2ep) KHÔNG vượt E2** (−3.07 vs −5.89 h264;
-−2.92 vs −2.79 h265 — ngang). POST strength đóng bớt (0.052→0.047) trong khi
+FULL n=1159 (10k boot): sandwich **−3.33% [−5.37,−1.34] / −2.62% [−4.13,−1.01]**,
+gap PASS. **Verdict: co-adaptation (lr 2e-5, 2ep) KHÔNG vượt E2** (−3.33 vs −5.89 h264;
+−2.62 vs −2.79 h265 — ngang). POST strength đóng bớt (0.052→0.047) trong khi
 PRE giữ nguyên: fine-tune kéo cả hai về điểm cân bằng giữa, mất sự chuyên biệt
 của từng nửa. Shard 2 đang chạy cho merge full. Bài học: frankenstein giữ
 nguyên trạng (không co-adapt nhẹ) là cấu hình tốt nhất.
