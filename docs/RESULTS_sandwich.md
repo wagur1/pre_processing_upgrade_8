@@ -28,6 +28,19 @@ out conv × zero gate ⇒ gradient kép ≡ 0). Nhân bản độc lập của c
 | **sandwich (claim chính)** | **−4.25% [−6.73,−1.58]** | −1.48% [−3.34,+0.50] | PASS |
 | lineage best (Zhao kappa=10, v6) | −3.42% [−5.88,−0.88] | −2.63% [−4.49,−0.79] | PASS |
 
+## STE stage-2 (x265-in-loop 400 bước; shards 0+1 = 770 seqs, 5k bootstrap)
+
+| Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
+|---|---|---|---|---|---|
+| prep+codec | −0.56% | [−2.72, +1.67] | −1.36% | [−2.97, +0.31] | 0.690 / 0.943 |
+| **sandwich+codec** | −3.40% | [−5.63, −0.96] | **−3.33%** | **[−5.04, −1.43]** | 0.996 / **1.000** |
+
+**STE kéo h265 lên ~1.3pp** (−2.05 joint không-STE full-n → −3.33 STE 770-seq;
+dung sai ±1pp vẫn để lại cải thiện thật) mà **không phá h264** (−3.40 vs −4.45
+joint — hơi lùi trong khoảng noise, đánh đổi chấp nhận được vì h264 đã mạnh).
+Điều này xác nhận giả thuyết bất đối xứng codec: POST học được artifact x265
+khi thấy x265 thật trong vòng lặp. Full merge khi shard 2 xong.
+
 ## Frankenstein (PRE=v7-v1 best + POST=v8-v2, FULL n=1159, 10k bootstrap)
 
 | Arm | BD h264 | CI95 | BD h265 | CI95 |
