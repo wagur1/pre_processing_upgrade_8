@@ -39,6 +39,18 @@ So với frankenstein (không STE): h264 −4.82 → **−5.89 (+1.07pp từ STE
 −2.38 → −2.79 (+0.41pp). Cộng tính giữ vững lần thứ 3. CI h264 upper (−3.76) đã
 sâu hơn mean của lineage best (−3.42). Gap rule PASS cả hai.
 
+## STE stage-2 FULL (x265-in-loop, n=1159, 10k bootstrap)
+
+| Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
+|---|---|---|---|---|---|
+| prep+codec | −1.60% | [−3.40, +0.21] | −1.60% | [−2.90, −0.22] | 0.957 / 0.988 |
+| **sandwich+codec** | −4.13% | [−6.02, −2.18] | **−3.56%** | **[−4.96, −2.09]** | 1.000 / 1.000 |
+
+**h265 −3.56% là số tốt nhất từng đo trên codec này** (STE-h265 fix asymmetry:
+joint không-STE −2.05 → −3.56, +1.5pp). Per-codec record holders: h264 = E2
+frankenstein-STE (−5.89), h265 = STE sandwich (−3.56). E1 (frankenstein + STE-x264,
+đang eval) nhắm hợp nhất cả hai.
+
 ## STE stage-2 (x265-in-loop 400 bước; shards 0+1 = 770 seqs, 5k bootstrap)
 
 | Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
