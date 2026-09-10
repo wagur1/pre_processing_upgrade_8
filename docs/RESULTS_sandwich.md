@@ -39,6 +39,28 @@ So với frankenstein (không STE): h264 −4.82 → **−5.89 (+1.07pp từ STE
 −2.38 → −2.79 (+0.41pp). Cộng tính giữ vững lần thứ 3. CI h264 upper (−3.76) đã
 sâu hơn mean của lineage best (−3.42). Gap rule PASS cả hai.
 
+## E1: frankenstein + STE-x264 (shards 0+1 = 770 seqs, 5k bootstrap)
+
+| Arm | BD h264 | CI95 | BD h265 | CI95 |
+|---|---|---|---|---|
+| sandwich | −4.49% | [−7.06, −1.80] | −1.96% | [−3.87, +0.06] |
+
+**Verdict: STE theo codec là TRADE-OFF, không cộng dồn.** POST fine-tune trên
+x264 (E1): h264 −4.49 (thua E2 −5.89), h265 −1.96 (thua STE-h265 −3.56). So sánh
+3 biến thể STE cho thấy POST mạnh nhất cho codec nó fine-tune, lùi trên codec
+kia: h264 record = E2 (POST-h265, vành đai proxy), h265 record = STE (POST-h265).
+Mô hình đúng cho paper: **per-codec POST heads** (hoặc FiLM theo codec), không
+một POST duy nhất cho cả hai.
+
+## E3: co-adaptation (2ep STE-x264 từ frankenstein; ckpt epoch 2, step 2158)
+Gates: PRE dec=−0.625 edit=0 stab=−0.080 (giữ nguyên), POST +0.0471 (từ +0.0523).
+Eval shards 0+1 RUNNING trên linhowi05.
+
+## TTO screen (100 clip, steps=30, frankenstein-STE)
+tto+h264 −3.79% (acc 0.508→0.568) / tto+h265 **+6.09%** (acc 0.520→0.546).
+TTO residual giúp x264 nhưng PHÁ x265 — cùng bất đối xứng proxy-block-8/x264.
+Cần steps/mục tiêu theo codec hoặc bỏ arm h265 nếu tiếp tục. 100-clip = diagnostic.
+
 ## STE stage-2 FULL (x265-in-loop, n=1159, 10k bootstrap)
 
 | Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
