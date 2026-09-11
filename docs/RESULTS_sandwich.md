@@ -151,3 +151,19 @@ POST strength = +0.052  → MỞ (dead-saddle fix có tác dụng)
 - PRE của v8 yếu hơn v7 trên h264 (−0.09 vs −2.46): POST "án ngữ" vai trò khôi phục
   trong joint training, làm PRE bớt dốc — chính là trade-off thiết kế của sandwich.
 - Số này là 2/3 shards; merge full n=1159 khi shard 2 xong (dự kiến lệch ≤ ±0.5pp).
+
+
+## E4: BIG-POST (post_base=64, ~2.3M params, joint train; shards 0+1 = 770 seqs, 5k boot)
+
+| Arm | BD h264 | CI95 | BD h265 | CI95 | P(BD<0) |
+|---|---|---|---|---|---|
+| sandwich | **−6.68%** | **[−9.20, −4.07]** | **−3.63%** | **[−5.42, −1.80]** | **1.000 / 1.000** |
+
+**PHÁT HIỆN QUYẾT ĐỊNH: POST lớn dùng chung (không codec-conditioning) thắng
+cả hai kỷ lục trong MỘT model** — h264 −6.68 (vượt E2 −5.89 thêm 0.8pp), h265
+−3.63 (vượt STE −3.56). Suy luận lại chuỗi falsification: thất bại của v9-a
+(shared trunk 577k + FiLM) KHÔNG phải là "sharing thất bại" mà là **577k
+không đủ capacity cho 2 họ artifact** — 4× capacity (2.3M) hấp thụ được sự
+khác biệt codec mà không cần routing. Giá trị của v9-b (per-codec routing) giờ
+thành: cùng mức với E4 nhưng dùng 2×445k params thay vì 1×2.3M — và E4 đơn
+giản hơn nhiều (1 head, không cần biết codec). Full merge khi shard 2 xong.
