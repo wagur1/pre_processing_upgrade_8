@@ -72,13 +72,20 @@ def load_sequences(shard_dirs: list[Path]) -> dict:
     return seqs
 
 
-def dataset_curves(seqs: dict) -> dict:
-    """Aggregate per-sequence points into dataset-level (bpp, top1) curves."""
+def dataset_curves(seqs) -> dict:
+    """Aggregate per-sequence points into dataset-level (bpp, top1) curves.
+
+    ``seqs`` may be a dict (full sample) or a LIST of records — bootstrap
+    passes a list WITH DUPLICATES: a clip picked k times must contribute k
+    times, or each resample silently collapses to ~63% unique clips and the
+    interval is not a bootstrap (audit 2026-09-11, critical finding #1).
+    """
+    items = seqs.values() if isinstance(seqs, dict) else seqs
     curves = {}
     for codec in CODECS:
         for method in (codec, f"prep+{codec}", f"sandwich+{codec}"):
             bpp_sum, correct, n = {}, {}, {}
-            for rec in seqs.values():
+            for rec in items:
                 points = rec["codecs"].get(method)
                 if not points:
                     continue
@@ -146,7 +153,7 @@ def bootstrap(seqs: dict, n_boot: int, seed: int) -> dict:
             samples = []
             for _ in range(n_boot):
                 pick = [rng.choice(ids) for _ in ids]
-                sub = {sid: seqs[sid] for sid in pick}
+                sub = [seqs[sid] for sid in pick]  # keep multiplicity!
                 c = dataset_curves(sub)
                 a, p_ = c.get(codec), c.get(f"{arm}+{codec}")
                 if not a or not p_ or len(a["bpp"]) < 4:
