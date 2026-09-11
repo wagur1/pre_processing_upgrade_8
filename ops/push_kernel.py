@@ -60,6 +60,8 @@ def main():
     p.add_argument("--num-shards", type=int, default=3)
     p.add_argument("--train-kernel", default=None,
                    help="(eval) train kernel slug whose output is the checkpoint source")
+    p.add_argument("--confirmatory", action="store_true",
+                   help="(eval) use the fresh never-used-sibling holdout (audit #4)")
     p.add_argument("--ckpt-dataset", default=None,
                    help="(eval) dataset slug holding the checkpoint (e.g. frankenstein)")
     p.add_argument("--no-gpu", action="store_true")
@@ -85,6 +87,8 @@ def main():
     elif a.kind == "eval":
         mod = importlib.import_module("ops.mk_eval_kernel")
         src = mod.EVAL_BASH.replace("__COMMIT__", commit)
+        if a.confirmatory:
+            src = "export CONFIRMATORY=1\n" + src
         src = src.replace("__CONFIG__", a.config)
         src = src.replace("__SHARD_ARGS__",
                           f"eval.shard_idx={a.shard_idx} eval.num_shards={a.num_shards}")

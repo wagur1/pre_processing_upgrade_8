@@ -45,9 +45,18 @@ if [ -z "$KINETICS_ROOT" ]; then
 fi
 echo "[eval] Kinetics root: $KINETICS_ROOT"
 
-INDEX=data/index/kinetics_hash_split.json
-if [ ! -f "$INDEX" ]; then
-  python scripts/build_train_index.py --root "$KINETICS_ROOT" --out "$INDEX" --assert-fingerprint 30f083f8520a
+if [ "${CONFIRMATORY:-0}" = "1" ]; then
+  # audit #4: fresh holdout from never-indexed sibling dirs
+  INDEX=data/index/confirmatory.json
+  python ops/build_confirmatory_index.py \
+      --canonical-root "$KINETICS_ROOT" \
+      --dataset-root "$(dirname "$KINETICS_ROOT")" \
+      --out "$INDEX"
+else
+  INDEX=data/index/kinetics_hash_split.json
+  if [ ! -f "$INDEX" ]; then
+    python scripts/build_train_index.py --root "$KINETICS_ROOT" --out "$INDEX" --assert-fingerprint 30f083f8520a
+  fi
 fi
 
 # ---- checkpoint from the TRAIN kernel's attached output ----
