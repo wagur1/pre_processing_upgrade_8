@@ -93,7 +93,19 @@ frankenstein-STE (−5.89), h265 = STE sandwich (−3.56). E1 (frankenstein + ST
 dung sai ±1pp vẫn để lại cải thiện thật) mà **không phá h264** (−3.40 vs −4.45
 joint — hơi lùi trong khoảng noise, đánh đổi chấp nhận được vì h264 đã mạnh).
 Điều này xác nhận giả thuyết bất đối xứng codec: POST học được artifact x265
-khi thấy x265 thật trong vòng lặp. Full merge khi shard 2 xong.
+khi thấy x265 thật trong vòng lặp. ### FULL n=1159 với bootstrap ĐÃ SỬA (multiplicity giữ nguyên — audit 2026-09-11 #1)
+
+| Arm | BD h264 | CI95 (hợp lệ) | BD h265 | CI95 (hợp lệ) | P(BD<0) |
+|---|---|---|---|---|---|
+| sandwich | **−5.71%** | [−8.34, −2.95] | **−4.22%** | [−6.12, −2.19] | 1.000 / 1.000 |
+
+Full-n h265 −4.22% là **kỷ lục h265 mới** (vượt STE −3.56 và v9-b −3.56).
+h264 −5.71 (partial −6.68 co về đúng mức dự báo ±1pp). So v9-b full
+(−5.89/−3.56): E4 thắng h265 (+0.66pp), thua h264 nhẹ (−0.18pp, trong noise) —
+CI chồng lấn hoàn toàn: **không có champion thống kê tuyệt đối**, hai cấu hình
+trading dominance theo codec. Phần tử chung của câu chuyện không đổi: sharing
+với đủ capacity (E4) và per-codec specialization (v9-b) đạt cùng mức, cả hai
+vượt mọi biến thể nhỏ hơn.
 
 ## Frankenstein (PRE=v7-v1 best + POST=v8-v2, FULL n=1159, 10k bootstrap)
 
