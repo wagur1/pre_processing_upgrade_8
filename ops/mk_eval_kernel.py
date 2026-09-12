@@ -92,6 +92,25 @@ ls -la "$OUT"
 import argparse
 
 
+def held_out_override(analyzer: str) -> str:
+    """CLI override emitted for the eval analyzer arm.
+
+    'teacher' must NULL the key, not merely omit the override: every committed
+    config YAML sets ``eval.held_out_backbone: r2plus1d_18`` and
+    ``src.tasks.base.build_analyzer`` honours the YAML whenever the key is
+    truthy, so the old "no override" path silently kept the held-out analyzer
+    and the on-teacher arm re-evaluated r2plus1d_18 (byte-identical
+    merged_results.json to the held-out run, 2026-09-12). ``null`` coerces to
+    ``None`` (src/config.py::_coerce) which is falsy -> build_analyzer falls
+    back to ``task.backbone`` (r3d_18, teacher of the ensemble).
+    """
+    if analyzer == "heldout":
+        return "eval.held_out_backbone=r2plus1d_18"
+    if analyzer == "teacher":
+        return "eval.held_out_backbone=null"
+    raise ValueError(f"unknown analyzer '{analyzer}'")
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--commit", required=True)
@@ -100,11 +119,12 @@ def main():
     p.add_argument("--num-shards", type=int, default=3)
     p.add_argument("--analyzer", choices=["heldout", "teacher"], default="heldout",
                    help="heldout: eval.held_out_backbone=r2plus1d_18 (canonical); "
-                        "teacher: no override -> task.backbone (on-teacher arm)")
+                        "teacher: eval.held_out_backbone=null -> task.backbone "
+                        "(on-teacher arm; the YAML value MUST be nulled, not omitted)")
     a = p.parse_args()
 
     shard_args = f"eval.shard_idx={a.shard_idx} eval.num_shards={a.num_shards}"
-    held_out = "eval.held_out_backbone=r2plus1d_18" if a.analyzer == "heldout" else ""
+    held_out = held_out_override(a.analyzer)
     bash = (
         EVAL_BASH.replace("__COMMIT__", a.commit)
         .replace("__CONFIG__", a.config)
