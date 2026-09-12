@@ -908,6 +908,19 @@ def _pre_chunked(pre, clip, chunk, cond=None):
     return torch.cat(outs, dim=2)
 
 
+def _post_chunked(pre, clip, chunk, cond=None):
+    """POST-restore a long decoded clip in T-chunks (bounds memory)."""
+    post_restore = getattr(pre, "post_restore", None)
+    if post_restore is None:
+        raise AttributeError("model has no post_restore (arch must be sandwich-like)")
+    t = clip.shape[2]
+    outs = []
+    for s in range(0, t, chunk):
+        with torch.no_grad():
+            outs.append(post_restore(clip[:, :, s : s + chunk], cond))
+    return torch.cat(outs, dim=2)
+
+
 def _acc_track(store, method, key, bpp, pred, gt, valid):
     m = sequence_metrics(pred, gt, valid)
     slot = store.setdefault(method, {}).setdefault(
@@ -988,6 +1001,7 @@ def _evaluate_tracking(cfg, pre, codec, analyzer, out_dir) -> dict:
                 xh0, bpp0 = _codec_chunked(pre, codec, clip, q, chunk, use_pre=False)
                 _acc_track(store, proxy_name, q, bpp0, track(xh0, init), gt, valid)
         if have_ffmpeg:
+            has_post = hasattr(pre, "post_restore")
             for cname in ("h264", "h265"):
                 for qp in qps:
                     cond = _rate_cond(_qp_norm(qp, cfg), clip.shape[0], clip.device, clip.dtype)
@@ -997,6 +1011,13 @@ def _evaluate_tracking(cfg, pre, codec, analyzer, out_dir) -> dict:
                     _acc_track(store, cname, qp, bpp, track(xh.to(device), init), gt, valid)
                     xhp, bppp = sc.compress_decompress(clip_pre)   # prep + real codec
                     _acc_track(store, f"prep+{cname}", qp, bppp, track(xhp.to(device), init), gt, valid)
+                    if has_post:
+                        # sandwich arm: POST restores the decoded clip (same
+                        # bpp — post runs after decode and costs no bits);
+                        # mirrors the classification eval's 3-arm protocol.
+                        pre.bypass_post = False
+                        xs = _post_chunked(pre, xhp.to(device), chunk, cond=cond)
+                        _acc_track(store, f"sandwich+{cname}", qp, bppp, track(xs, init), gt, valid)
 
     curves = {m: _curve_track(store[m]) for m in store}
     return _finalize(curves, out_dir, task="tracking", metric="auc", n_eval=len(seqs),

@@ -1,0 +1,68 @@
+# =============================================================================
+# E4 zero-shot on GOT-10k tracking (docs: task-2 first measurement).
+#
+# The E4 SANDWICH checkpoint (PRE 44k + POST 2.3M, trained on Kinetics-400
+# action recognition, arch keys restored from the checkpoint cfg) is evaluated
+# AS-IS on GOT-10k val sequences -- no tracking training of any kind. Arms:
+# anchor / prep+codec / sandwich+codec on the same checkpoint, x264+x265
+# medium, QP 30-50, quality axis = success-plot AUC (src/metrics/tracking_auc).
+#
+# frame_size stays 128 to match E4's training resolution (a zero-shot run
+# must not also be a resolution-shift run). The GOT-10k index is built by
+# ops/mk_tracking_eval_kernel.py from the val split (full ground truth).
+# =============================================================================
+
+device: auto
+out_dir: outputs/e4_tracking
+seed: 0
+
+task:
+  name: tracking
+  backbone: resnet18      # frozen SiamFC feature backbone
+  exemplar_size: 127
+  search_size: 255
+  pos_radius: 2.0
+
+model:
+  arch: sandwich          # arch knobs restored from the E4 checkpoint cfg
+  s_ch: 16
+  editor_ch: 24
+  cond_dim: 1
+  dino_weight: 0.5
+  dino_name: dinov2_vits14
+  motion_tau: 0.1
+  gate: false
+  post_base: 64           # E4 BIG-POST (~2.3M params)
+  qp_ref: [20, 51]
+
+codec:
+  kind: virtual           # train-time proxy; eval uses real ffmpeg x264/x265
+  qualities: [1, 2, 3, 5, 8]
+  block: 8
+  inter: true
+  colorspace: yuv420
+  chroma_step_scale: 2.0
+  step_coarse: 0.25
+  step_fine: 0.03
+  anneal: 1.0
+
+data:
+  index: data/index/got10k_val.json
+  num_frames: 8
+  frame_size: 128         # matches E4 training resolution (zero-shot fairness)
+  temporal_stride: 3
+
+train:                    # unused by evaluate(); kept for CLI compatibility
+  epochs: 1
+  batch_size: 2
+  qp_list: [30, 35, 40, 45, 50]
+  qp_to_quality: {30: 8, 35: 5, 40: 3, 45: 2, 50: 1}
+
+eval:
+  split: test
+  include_proxy: false
+  qp_list: [30, 35, 40, 45, 50]
+  preset: medium
+  max_seqs: 120           # first 120 of ~178 indexed val sequences (v1 scope)
+  max_frames: 48          # protocol cap from configs/tracking.yaml
+  codec_chunk: 16
